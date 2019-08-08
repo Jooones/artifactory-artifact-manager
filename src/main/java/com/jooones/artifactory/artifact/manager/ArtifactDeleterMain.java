@@ -15,9 +15,8 @@ public class ArtifactDeleterMain {
      */
     public static void main(String[] args) {
         Instant startTime = now();
-        Deleter deleter = new Deleter();
-        new ArtifactConfig().getArtifactsToDelete().forEach(deleter::delete);
-        System.out.println("Elapsed time (seconds): " + between(startTime, now()).getSeconds());
+        new Deleter().findAndDelete(new ArtifactConfig().getArtifactsToDelete());
+        System.out.println("Elapsed time (including user confirmation time): " + between(startTime, now()).getSeconds() + " seconds");
     }
 
 }

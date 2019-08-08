@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.jooones.artifactory.artifact.manager.ArtifactoryPropertyReader.readProperty;
 
@@ -22,21 +23,26 @@ public class Deleter {
     private static final String BASE_URL = readProperty("base_url");
     private static final String REPOSITORY_PATH = readProperty("repository_path");
 
-    public void delete(VersionMatch versionMatch) {
-        Set<String> versions = getMatchingVersions(versionMatch);
-        if (!versions.isEmpty()) {
-            delete(versions, versionMatch.getArtifactName());
-        } else {
-            System.out.println("No actual versions found for " + versionMatch);
+    public void findAndDelete(Set<VersionMatch> artifactsToDelete) {
+        Set<MatchedArtifact> matchedArtifacts = artifactsToDelete.stream()
+                .map(this::getMatchingVersions)
+                .collect(Collectors.toSet());
+
+        if (atLeastOneMatchFound(matchedArtifacts)) {
+            delete(matchedArtifacts);
         }
     }
 
-    private Set<String> getMatchingVersions(VersionMatch versionMatch) {
+    private MatchedArtifact getMatchingVersions(VersionMatch versionMatch) {
         try {
             HttpResponse<JsonNode> response = Unirest.get(BASE_URL + LIST_API_INFIX + REPOSITORY_PATH + versionMatch.getArtifactName() + "?list&listFolders=1")
                     .basicAuth(ARTIFACTORY_USERNAME, ARTIFACTORY_PASSWORD)
                     .asJson();
-            return versionMatch.getMatchingVersions(getActualVersions(response));
+            Set<String> matchedVersions = versionMatch.getMatchingVersions(getActualVersions(response));
+            if (matchedVersions.isEmpty()) {
+                System.out.println("WARN: no actual versions found for: " + versionMatch);
+            }
+            return new MatchedArtifact(versionMatch, matchedVersions);
         } catch (UnirestException e) {
             throw new RuntimeException(e);
         }
@@ -51,17 +57,21 @@ public class Deleter {
         return versions;
     }
 
-    private void delete(Set<String> versions, String artifactName) {
-        if (userSaysGo(artifactName, versions)) {
-            versions.forEach(version -> deleteVersion(artifactName, version));
+    private void delete(Set<MatchedArtifact> matchedArtifacts) {
+        if (userSaysGo(matchedArtifacts)) {
+            matchedArtifacts
+                    .forEach(matchedArtifact -> matchedArtifact.getVersions()
+                            .forEach(version -> deleteVersion(matchedArtifact.getVersionMatch().getArtifactName(), version)));
         } else {
             System.out.println("Cancelled by user.");
         }
     }
 
-    private boolean userSaysGo(String artifactName, Set<String> versions) {
+    private boolean userSaysGo(Set<MatchedArtifact> matchedArtifacts) {
         System.out.println("Are you sure you want to delete the following artifacts? ");
-        versions.forEach(version -> System.out.println(artifactName + " " + version));
+        matchedArtifacts
+                .forEach(matchedArtifact -> matchedArtifact.getVersions()
+                        .forEach(version -> System.out.println(matchedArtifact.getVersionMatch().getArtifactName() + " " + version)));
         return "Y".equals(getUserInput());
     }
 
@@ -73,13 +83,17 @@ public class Deleter {
 
     private void deleteVersion(String artifactName, String version) {
         try {
-            HttpResponse<String> response = Unirest.delete(BASE_URL + REPOSITORY_PATH + artifactName + "/" + version  + "/")
+            HttpResponse<String> response = Unirest.delete(BASE_URL + REPOSITORY_PATH + artifactName + "/" + version + "/")
                     .basicAuth(ARTIFACTORY_USERNAME, ARTIFACTORY_PASSWORD)
                     .asString();
             System.out.println("Artifact " + artifactName + ":" + version + " deletion response code = " + response.getStatus());
         } catch (UnirestException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private boolean atLeastOneMatchFound(Set<MatchedArtifact> matchedArtifacts) {
+        return matchedArtifacts.stream().anyMatch(matchedArtifact -> !matchedArtifact.getVersions().isEmpty());
     }
 
 }
