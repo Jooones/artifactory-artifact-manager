@@ -1,0 +1,6 @@
+username=<USERNAME>
+password=<PASSWORD>
+# example of a full artifact url:                       https://projectx.jfrog.io/projectx/api/storage/hosted/com/jooones/projectx-backend/0.1.0
+# would result in ARTIFACTORY_API_ARTIFACT_URL_PREFIX:  https://projectx.jfrog.io/projectx/api/storage/hosted/com/jooones/
+# the rest is configured in ArtifactConfig.java
+url=<ARTIFACTORY_API_ARTIFACT_URL_PREFIX>

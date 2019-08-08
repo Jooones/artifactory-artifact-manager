@@ -5,3 +5,4 @@
 build
 out
 *.orig
+artifactory.properties

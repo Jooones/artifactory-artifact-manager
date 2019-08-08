@@ -7,3 +7,8 @@ group 'com.jooones'
 repositories {
     mavenCentral()
 }
+
+dependencies {
+    compile 'org.apache.commons:commons-lang3:3.8.1'
+    compile 'com.mashape.unirest:unirest-java:1.4.9'
+}
