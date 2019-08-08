@@ -15,9 +15,12 @@ import static com.jooones.artifactory.artifact.manager.ArtifactoryPropertyReader
 
 public class Deleter {
 
+    private static final String LIST_API_INFIX = "api/storage/";
+
     private static final String ARTIFACTORY_USERNAME = readProperty("username");
     private static final String ARTIFACTORY_PASSWORD = readProperty("password");
-    private static final String ARTIFACTORY_URL = readProperty("url");
+    private static final String BASE_URL = readProperty("base_url");
+    private static final String REPOSITORY_PATH = readProperty("repository_path");
 
     public void delete(VersionMatch versionMatch) {
         Set<String> versions = getMatchingVersions(versionMatch);
@@ -30,7 +33,7 @@ public class Deleter {
 
     private Set<String> getMatchingVersions(VersionMatch versionMatch) {
         try {
-            HttpResponse<JsonNode> response = Unirest.get(ARTIFACTORY_URL + versionMatch.getArtifactName() + "?list&listFolders=1")
+            HttpResponse<JsonNode> response = Unirest.get(BASE_URL + LIST_API_INFIX + REPOSITORY_PATH + versionMatch.getArtifactName() + "?list&listFolders=1")
                     .basicAuth(ARTIFACTORY_USERNAME, ARTIFACTORY_PASSWORD)
                     .asJson();
             return versionMatch.getMatchingVersions(getActualVersions(response));
@@ -70,7 +73,7 @@ public class Deleter {
 
     private void deleteVersion(String artifactName, String version) {
         try {
-            HttpResponse<String> response = Unirest.delete(removeInfixFromUrl(ARTIFACTORY_URL) + artifactName + "/" + version  + "/")
+            HttpResponse<String> response = Unirest.delete(BASE_URL + REPOSITORY_PATH + artifactName + "/" + version  + "/")
                     .basicAuth(ARTIFACTORY_USERNAME, ARTIFACTORY_PASSWORD)
                     .asString();
             System.out.println("Artifact " + artifactName + ":" + version + " deletion response code = " + response.getStatus());
@@ -79,7 +82,4 @@ public class Deleter {
         }
     }
 
-    private String removeInfixFromUrl(String artifactoryUrl) {
-        return artifactoryUrl.replace("/api/storage", "");
-    }
 }
