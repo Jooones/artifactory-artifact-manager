@@ -83,3 +83,7 @@ _starts sweating_
 _5 seconds go by_  
 Q: Um.. I don't see any unit tests?  
 J: ABORT! ABORT!
+
+## "Your tool has potential but the final result sucks balls"
+Feel free to fork, update and sell for a high price.  
+I don't mind!  
