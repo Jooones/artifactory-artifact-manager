@@ -44,7 +44,7 @@ public class Deleter {
             }
             return new MatchedArtifact(versionMatch, matchedVersions);
         } catch (UnirestException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Something went wrong trying to execute the json call, are you sure the URL is correctly configured in artifactory.properties?", e);
         }
     }
 
@@ -63,7 +63,7 @@ public class Deleter {
                     .forEach(matchedArtifact -> matchedArtifact.getVersions()
                             .forEach(version -> deleteVersion(matchedArtifact.getVersionMatch().getArtifactName(), version)));
         } else {
-            System.out.println("Cancelled by user.");
+            System.out.println("Aborted by user.");
         }
     }
 
