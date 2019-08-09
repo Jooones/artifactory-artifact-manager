@@ -61,7 +61,7 @@ How to interpret the output:
 - Then it shows you the actual versions it was able to match and asks for confirmation before executing the irreversible delete
 - If you confirm, the tool will attempt to delete the artifacts and show the http response code for each deletion attempt
     - The expected response code is in the 200's
-- Finally the tool displays how look it took to run the whole thing, including user confirmation time
+- Finally the tool displays how long it took to run the whole thing, this includes user confirmation time
 
 ## Aborting
 Simply type something else than `Y` (`n` for instance) and hit enter.
@@ -79,8 +79,8 @@ Just killing the program will also abort the delete.
 ## Why Java?
 Q: But Jooones, why write this tool in Java? This looks like a perfect tool to create using a scripting language and just provide a shell script for the end user to run.  
 J: Well, I find it a lot easier to write unit tests for java code than code produced by scripting languages  
-_starts sweating_  
-_5 seconds go by_  
+_..starts sweating.._  
+_..5 seconds go by.._  
 Q: Um.. I don't see any unit tests?  
 J: ABORT! ABORT!
 
