@@ -80,7 +80,6 @@ Just killing the program will also abort the delete.
 Q: But Jooones, why write this tool in Java? This looks like a perfect tool to create using a scripting language and just provide a shell script for the end user to run.  
 J: Well, I find it a lot easier to write unit tests for java code than code produced by scripting languages.  
 _..starts sweating.._  
-_..5 seconds go by.._  
 Q: Um.. I don't see any unit tests?  
 J: ABORT! ABORT!
 
